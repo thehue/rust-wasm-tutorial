@@ -1,3 +1,13 @@
-import * as wasm from 'wasm-game-of-life';
+import { Universe } from 'wasm-game-of-life';
 
-wasm.greet('안녕! 웹 어셈블리야~~~');
+const wrapper = document.getElementById('game-of-life-canvas');
+const universe = Universe.new();
+
+const renderLoop = () => {
+  wrapper.textContent = universe.render();
+  universe.tick();
+
+  requestAnimationFrame(renderLoop);
+};
+
+requestAnimationFrame(renderLoop);
