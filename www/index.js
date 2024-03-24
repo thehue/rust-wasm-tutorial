@@ -44,13 +44,21 @@ const drawGrid = () => {
   ctx.stroke();
 };
 
+const bitIsSet = (index, uint8Array) => {
+  const byteIndex = Math.floor(n / 8); // 바이트 인덱스 계산
+  const bitIndex = index % 8; // 비트 인덱스 계산
+  const byteValue = uint8Array[byteIndex]; // 해당 바이트 값 얻기
+  const mask = 1 << bitIndex; // 비트 마스크 생성
+  return (byteValue & mask) !== 0; // 비트가 설정되어 있는지 확인
+};
+
 const getIndex = (row, column) => {
   return row * width + column;
 };
 
 const drawCells = () => {
   const cellsPtr = universe.cells();
-  const cells = new Uint8Array(memory.buffer, cellsPtr, width * height);
+  const cells = new Uint8Array(memory.buffer, cellsPtr, (width * height) / 8);
 
   ctx.beginPath();
 
@@ -58,7 +66,8 @@ const drawCells = () => {
     for (let col = 0; col < width; col++) {
       const idx = getIndex(row, col);
 
-      ctx.fillStyle = cells[idx] === Cell.Dead ? DEAD_COLOR : ALIVE_COLOR;
+      ctx.fillStyle =
+        bitIsSet(idx, cells) === Cell.Dead ? DEAD_COLOR : ALIVE_COLOR;
 
       ctx.fillRect(
         col * (CELL_SIZE + 1) + 1,
