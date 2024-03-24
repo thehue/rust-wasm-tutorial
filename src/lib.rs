@@ -1,4 +1,8 @@
+// `js_sys` 라이브러리를 사용하기 위해 해당 라이브러리를 가져온다. 이 라이브러리는 Javascript와 상호작용할 수 있는 Rust의 기능을 제공
+extern crate js_sys;
 mod utils;
+// Javascript의 `Math`객체를 Rust 코드에서 사용할 수 있도록 가져온다
+use js_sys::Math;
 use std::fmt;
 use wasm_bindgen::prelude::*;
 
@@ -87,6 +91,28 @@ impl Universe {
                 }
             })
             .collect();
+
+        Universe {
+            width,
+            height,
+            cells,
+        }
+    }
+
+    pub fn random() -> Universe {
+        let width = 64;
+        let height = 64;
+        // with_capacity 함수를 사용하여 벡터의 용량을 사전에 설정
+        let mut cells = Vec::with_capacity((width * height) as usize);
+
+        for _ in 0..width * height {
+            let random_value = Math::random();
+            if random_value < 0.5 {
+                cells.push(Cell::Alive);
+            } else {
+                cells.push(Cell::Dead);
+            }
+        }
 
         Universe {
             width,
