@@ -133,6 +133,28 @@ impl Universe {
     pub fn cells(&self) -> *const u32 {
         self.cells.as_slice().as_ptr() as *const u32
     }
+
+    /// Set the width of the universe.
+    ///
+    /// Resets all cells to the dead state.
+    pub fn set_width(&mut self, width: u32) {
+        self.width = width;
+        self.cells = FixedBitSet::with_capacity(width as usize * self.height as usize);
+        for _ in 0..width * self.height {
+            self.cells.insert(0);
+        }
+    }
+
+    /// Set the height of the universe.
+    ///
+    /// Resets all cells to the dead state.
+    pub fn set_height(&mut self, height: u32) {
+        self.height = height;
+        self.cells = FixedBitSet::with_capacity(self.width as usize * height as usize);
+        for _ in 0..self.width * height {
+            self.cells.insert(0);
+        }
+    }
 }
 
 // impl fmt::Display for Universe {
@@ -152,5 +174,31 @@ impl Universe {
 impl Default for Universe {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl Universe {
+    /// Get the dead and alive values of the entire universe.
+    pub fn get_cells(&self) -> Vec<Cell> {
+        // self.cells.clone()
+        let mut cells = Vec::with_capacity(self.cells.len());
+        for idx in 0..self.cells.len() {
+            let cell_state = if self.cells[idx] {
+                Cell::Alive
+            } else {
+                Cell::Dead
+            };
+            cells.push(cell_state);
+        }
+        cells
+    }
+
+    /// Set cells to be alive in a universe by passing the row and column
+    /// of each cell as an array.
+    pub fn set_cells(&mut self, cells: &[(u32, u32)]) {
+        for (row, col) in cells.iter().cloned() {
+            let idx = self.get_index(row, col);
+            self.cells.set(idx, true); // 해당 인덱스의 셀을 Alive로 설정
+        }
     }
 }
