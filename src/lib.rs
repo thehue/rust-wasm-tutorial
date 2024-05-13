@@ -1,12 +1,20 @@
 extern crate fixedbitset;
 // `js_sys` 라이브러리를 사용하기 위해 해당 라이브러리를 가져온다. 이 라이브러리는 Javascript와 상호작용할 수 있는 Rust의 기능을 제공
 extern crate js_sys;
+extern crate web_sys;
 mod utils;
 // Javascript의 `Math`객체를 Rust 코드에서 사용할 수 있도록 가져온다
 use fixedbitset::FixedBitSet;
 use js_sys::Math;
 use std::fmt;
 use wasm_bindgen::prelude::*;
+
+// `println!(..)`과 유사한 문법을 제공하는 매크로입니다.
+macro_rules! log {
+  ( $( $t:tt )* ) => {
+      web_sys::console::log_1(&format!( $( $t )* ).into());
+  }
+}
 
 #[wasm_bindgen]
 #[repr(u8)]
@@ -35,6 +43,14 @@ impl Universe {
                 let cell = self.cells[idx];
                 let live_neighbors = self.live_neighbor_count(row, col);
 
+                log!(
+                    "cell[{}, {}]의 초기 상태는 {:?}이며 주변에 {}개의 살아 있는 이웃이 있다.",
+                    row,
+                    col,
+                    cell,
+                    live_neighbors
+                );
+
                 let next_cell = match (cell, live_neighbors) {
                     // Rule 1: Any live cell with fewer than two live neighbours
                     // dies, as if caused by underpopulation.
@@ -51,6 +67,8 @@ impl Universe {
                     // All other cells remain in the same state.
                     (otherwise, _) => otherwise,
                 };
+
+                log!("    다음 상태는 {:?}", next_cell);
 
                 next.set(idx, next_cell);
             }
@@ -81,6 +99,8 @@ impl Universe {
     }
 
     pub fn new() -> Universe {
+        utils::set_panic_hook();
+
         let width = 64;
         let height = 64;
 
