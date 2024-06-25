@@ -110,6 +110,11 @@ impl Universe {
     pub fn cells(&self) -> *const Cell {
         self.cells.as_ptr()
     }
+
+    pub fn toggle_cell(&mut self, row: u32, column: u32) {
+        let idx = self.get_index(row, column);
+        self.cells[idx].toggle();
+    }
 }
 
 impl fmt::Display for Universe {
@@ -129,5 +134,14 @@ impl fmt::Display for Universe {
 impl Default for Universe {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl Cell {
+    fn toggle(&mut self) {
+        *self = match *self {
+            Cell::Dead => Cell::Alive,
+            Cell::Alive => Cell::Dead,
+        };
     }
 }
