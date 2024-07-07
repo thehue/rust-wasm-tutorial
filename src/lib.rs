@@ -1,5 +1,6 @@
 mod utils;
 use std::fmt;
+use utils::Timer;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -21,6 +22,7 @@ pub struct Universe {
 #[wasm_bindgen]
 impl Universe {
     pub fn tick(&mut self) {
+        let _timer = Timer::new("Universe::tick");
         let mut next = self.cells.clone();
 
         for row in 0..self.height {
